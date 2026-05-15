@@ -1,0 +1,70 @@
+<div class="card card-static anim-scale-in">
+  <div class="mb-6 rounded-xl border border-[#2a2a2a] bg-[#151515] p-4">
+    <p class="border-l-[3px] border-[#3a3a3a] pl-[14px] text-[14px] italic leading-6 text-[#a0a0a0]">{{ plan.summary }}</p>
+  </div>
+
+  <div class="grid gap-5 md:grid-cols-2">
+    <div>
+      <p class="section-label">Top 3 priorities</p>
+      <ol class="space-y-2.5 pl-5 text-[14px] text-[#e0e0e0] marker:font-bold marker:text-white">
+        {% for priority in plan.top_3 %}
+          <li class="anim-fade-up delay-{{ loop.index }}">{{ priority }}</li>
+        {% endfor %}
+      </ol>
+    </div>
+
+    <div>
+      <p class="section-label">Avoid today</p>
+      <p class="rounded-lg border border-[#3d1a1a] bg-[#2d1515] p-3 text-[14px] leading-6 text-[#f87171]">{{ plan.avoid }}</p>
+    </div>
+  </div>
+
+  <div class="accent-line"></div>
+
+  <div>
+    <p class="section-label">Time blocks</p>
+    <div>
+      {% for block in plan.time_blocks %}
+        {% set category = block.category if block.category in ["deep_work", "meeting", "admin", "break", "review"] else "review" %}
+        <div class="timeline-row anim-slide-right delay-{{ loop.index if loop.index <= 6 else 6 }}">
+          <div class="timeline-time">{{ block.time }}</div>
+          <div class="timeline-rail">
+            <span class="timeline-dot {% if category == 'deep_work' %}bg-[#a78bfa]{% elif category == 'meeting' %}bg-[#38bdf8]{% elif category == 'admin' %}bg-[#fb923c]{% elif category == 'break' %}bg-[#4ade80]{% else %}bg-[#6366f1]{% endif %}"></span>
+          </div>
+          <div class="rounded-lg border border-[#1f1f1f] bg-[#151515] px-4 py-3 pb-4">
+            <p class="text-[14px] font-medium text-white">{{ block.label }}</p>
+            {% if block.note %}
+              <p class="mt-1 text-[12px] italic text-[#737373]">{{ block.note }}</p>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="mt-6 border-t border-[#1f1f1f] pt-5">
+    <p class="section-label">Evening reflection</p>
+    <form
+      class="space-y-3"
+      hx-post="/schedule/reflect"
+      hx-target="#reflection-result"
+      hx-swap="innerHTML"
+    >
+      {% for question in reflection_questions %}
+        <label class="block anim-fade-up delay-{{ loop.index if loop.index <= 6 else 6 }}">
+          <span class="mb-1.5 block text-[13px] font-medium text-[#a0a0a0]">{{ question }}</span>
+          <textarea class="input min-h-[64px] resize-y" name="reflection_parts" placeholder="A quick note..."></textarea>
+        </label>
+      {% endfor %}
+      <textarea class="hidden" name="reflection" id="reflection-combined"></textarea>
+      <button
+        class="btn-primary"
+        type="submit"
+        hx-on:click="document.getElementById('reflection-combined').value = Array.from(this.form.querySelectorAll('[name=reflection_parts]')).map((el, index) => `${index + 1}. ${el.previousElementSibling.textContent.trim()}\\n${el.value.trim()}`).join('\\n\\n')"
+      >
+        Save reflection
+      </button>
+    </form>
+    <div id="reflection-result" class="mt-3 text-[13px] text-[#4ade80]"></div>
+  </div>
+</div>

@@ -1,0 +1,46 @@
+<tr id="task-{{ task.id }}" class="task-row task-row-status-{{ task.status }} anim-fade-up delay-{{ loop.index if loop is defined and loop.index <= 6 else 6 }}">
+  <td>
+    <div class="font-medium text-white">{{ task.title }}</div>
+  </td>
+  <td>{{ task.project or "&mdash;"|safe }}</td>
+  <td>
+    <span class="priority-{{ task.priority }} capitalize">{{ task.priority }}</span>
+  </td>
+  <td>
+    {% include "tasks/partials/status_badge.html" %}
+  </td>
+  {% if has_team %}
+    <td>
+      <form hx-patch="/tasks/{{ task.id }}/assign" hx-target="#task-{{ task.id }}" hx-swap="outerHTML">
+        <select class="input max-w-[150px] py-1.5 text-[12px]" name="assignee" hx-trigger="change">
+          <option value="">Unassigned</option>
+          {% for member in members %}
+            <option value="{{ member.name }}" {% if task.assignee == member.name %}selected{% endif %}>{{ member.name }}</option>
+          {% endfor %}
+        </select>
+      </form>
+    </td>
+  {% endif %}
+  {% set due_label = task.due_date|due_date_label %}
+  <td class="{% if is_overdue(task.due_date, task.status) %}text-[#f87171]{% elif due_label == 'Today' %}text-[#4ade80]{% elif task.due_date %}text-[#737373]{% else %}text-[#585858]{% endif %}">
+    {{ due_label }}
+  </td>
+  <td class="text-right">
+    <button
+      type="button"
+      class="trash-button"
+      aria-label="Delete task"
+      hx-delete="/tasks/{{ task.id }}"
+      hx-confirm="Delete this task?"
+      hx-target="closest tr"
+      hx-swap="outerHTML"
+    >
+      <svg viewBox="0 0 16 16" aria-hidden="true">
+        <path d="M3 4.25h10"></path>
+        <path d="M6.25 2.5h3.5"></path>
+        <path d="M5 4.25l.5 9h5l.5-9"></path>
+        <path d="M6.75 6.75v4M9.25 6.75v4"></path>
+      </svg>
+    </button>
+  </td>
+</tr>

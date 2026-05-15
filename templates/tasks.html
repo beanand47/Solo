@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <style>
+    .flow-hero { margin-bottom: 56px; }
+    .flow-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .09em; color: #444444; margin-bottom: 14px; }
+    .flow-title { font-size: 36px; font-weight: 800; letter-spacing: -.04em; color: #fff; line-height: 1.1; margin: 0 0 18px; }
+    .flow-copy { font-size: 15px; color: #737373; line-height: 1.7; max-width: 520px; margin-bottom: 24px; }
+    .flow-crumb { display: inline-flex; align-items: center; gap: 10px; background: #0f0f0f; border: 1px solid #1f1f1f; border-radius: 10px; padding: 10px 16px; font-size: 12.5px; color: #585858; }
+    .flow-crumb a { color: #737373; text-decoration: none; }
+    .flow-check { color: #4ade80; }
+    .flow-arrow { color: #2a2a2a; }
+    .task-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 12px; }
+    .task-filters { display: flex; gap: 12px; flex-wrap: wrap; }
+    .task-filters .input { width: 152px; }
+    #add-form { margin-bottom: 16px; }
+    .task-table-card { padding: 0; overflow: hidden; }
+    .task-row { transition: background 120ms ease; }
+    .task-row:hover td { background: #161616; }
+    .task-title-cell { font-weight: 500; color: #fff; }
+    .task-project-cell { color: #737373; }
+    .status-action { cursor: pointer; }
+    .task-delete { background: transparent; border: 0; color: #333333; cursor: pointer; font-size: 18px; line-height: 1; padding: 7px 10px; border-radius: 7px; transition: color 150ms ease, background 150ms ease; }
+    .task-delete:hover { color: #f87171; background: #160808; }
+    .task-empty-cell { padding: 80px 0; text-align: center; }
+    .task-empty-emoji { font-size: 40px; opacity: .15; margin-bottom: 18px; }
+    .task-empty-title { font-size: 16px; font-weight: 600; color: #2f2f2f; margin-bottom: 10px; }
+    .task-empty-copy { font-size: 13px; color: #282828; line-height: 1.7; max-width: 440px; margin: 0 auto; }
+    .next-step-nudge { margin-top: 40px; background: #0c0c0c; border: 1px solid #1a1a1a; border-radius: 12px; padding: 22px 28px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .next-step-title { font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+    .next-step-copy { font-size: 13px; color: #585858; }
+    @media (max-width: 760px) {
+      .task-toolbar, .next-step-nudge { align-items: stretch; flex-direction: column; }
+      .task-filters .input { width: 100%; }
+      .flow-crumb { flex-wrap: wrap; }
+    }
+  </style>
+
+  <section class="flow-hero">
+    <div class="flow-label">Step 1 of 4: capture your work</div>
+    <h1 class="flow-title">Everything you are<br><span style="color:#60a5fa">working on.</span></h1>
+    <p class="flow-copy">Solo founders lose track. Tasks live in Notion, WhatsApp, sticky notes, and your head. This is the one place where nothing slips. Capture everything here, then let the AI help you prioritize.</p>
+    <div class="flow-crumb">
+      <span class="flow-check">✓ Captured here</span>
+      <span class="flow-arrow">→</span>
+      <a href="/schedule">Planned on Schedule</a>
+      <span class="flow-arrow">→</span>
+      <span>Focused in Chat</span>
+    </div>
+  </section>
+
+  <div class="task-toolbar">
+    <form id="task-filters" class="task-filters">
+      <select class="input" name="status" hx-get="/tasks" hx-target="#task-table" hx-select="#task-table" hx-swap="outerHTML" hx-trigger="change" hx-include="[name='status'], [name='priority']">
+        <option value="all" {% if selected_status == "all" %}selected{% endif %}>All</option>
+        <option value="todo" {% if selected_status == "todo" %}selected{% endif %}>To do</option>
+        <option value="in_progress" {% if selected_status == "in_progress" %}selected{% endif %}>In progress</option>
+        <option value="done" {% if selected_status == "done" %}selected{% endif %}>Done</option>
+      </select>
+      <select class="input" name="priority" hx-get="/tasks" hx-target="#task-table" hx-select="#task-table" hx-swap="outerHTML" hx-trigger="change" hx-include="[name='status'], [name='priority']">
+        <option value="all" {% if selected_priority == "all" %}selected{% endif %}>All</option>
+        <option value="urgent" {% if selected_priority == "urgent" %}selected{% endif %}>Urgent</option>
+        <option value="high" {% if selected_priority == "high" %}selected{% endif %}>High</option>
+        <option value="medium" {% if selected_priority == "medium" %}selected{% endif %}>Medium</option>
+        <option value="low" {% if selected_priority == "low" %}selected{% endif %}>Low</option>
+      </select>
+    </form>
+    <button class="btn-primary" type="button" hx-get="/tasks/new-form" hx-target="#add-form" hx-swap="innerHTML">+ New task</button>
+  </div>
+
+  <div id="add-form"></div>
+
+  <div class="card task-table-card">
+    <div id="task-table">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Task</th>
+            <th>Project</th>
+            <th>Priority</th>
+            <th>Status</th>
+            <th>Due</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="task-table-body">
+          {% for task in tasks %}
+            {% set due_label = task.due_date|due_date_label %}
+            <tr id="task-{{ task.id }}" class="task-row">
+              <td class="task-title-cell">{{ task.title }}</td>
+              <td class="task-project-cell">{{ task.project or "-" }}</td>
+              <td><span class="priority-{{ task.priority }} capitalize">{{ task.priority }}</span></td>
+              <td>
+                <span class="status-{{ task.status }} status-action capitalize" hx-patch="/tasks/{{ task.id }}/status" hx-target="closest td" hx-swap="innerHTML">{{ task.status.replace("_", " ") }}</span>
+              </td>
+              <td class="{% if is_overdue(task.due_date, task.status) %}text-[#f87171]{% elif due_label == 'Today' %}text-[#4ade80]{% else %}text-[#737373]{% endif %}">
+                {% if task.due_date %}{{ due_label }}{% else %}-{% endif %}
+              </td>
+              <td class="text-right">
+                <button class="task-delete" type="button" aria-label="Delete task" hx-delete="/tasks/{{ task.id }}" hx-confirm="Delete this task?" hx-target="closest tr" hx-swap="outerHTML">×</button>
+              </td>
+            </tr>
+          {% else %}
+            <tr id="task-empty-state">
+              <td colspan="6" class="task-empty-cell">
+                <div class="task-empty-emoji" aria-hidden="true">📋</div>
+                <div class="task-empty-title">Your list is clear</div>
+                <p class="task-empty-copy">Every great builder starts with a blank slate. Add your first task or tell the AI what you are building.</p>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <section class="next-step-nudge">
+    <div>
+      <div class="next-step-title">Tasks captured. Now plan your day.</div>
+      <p class="next-step-copy">Go to Schedule and let the AI turn your tasks into a focused time-blocked plan.</p>
+    </div>
+    <a class="btn-ghost" href="/schedule">Open Schedule →</a>
+  </section>
+{% endblock %}

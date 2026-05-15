@@ -1,0 +1,241 @@
+{% extends "base.html" %}
+
+{% block page_content_class %}chat-page{% endblock %}
+
+{% block content %}
+  <style>
+    .content-wrap.chat-page { display: flex; flex-direction: column; height: calc(100vh - 96px); padding-bottom: 0; }
+    .content-wrap.chat-page .page-content { display: flex; flex: 1; min-height: 0; width: 100%; }
+    .chat-shell { display: flex; flex: 1; min-height: 0; flex-direction: column; width: 100%; }
+    .chat-hero { margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid #181818; display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
+    .chat-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .09em; color: #444444; margin-bottom: 8px; }
+    .chat-title { font-size: 26px; font-weight: 800; letter-spacing: -.04em; color: #fff; line-height: 1.12; margin: 0 0 10px; }
+    .chat-copy { font-size: 13.5px; color: #737373; max-width: 460px; line-height: 1.7; }
+    .chat-flow { display: flex; flex-direction: column; gap: 6px; text-align: right; font-size: 12px; flex-shrink: 0; }
+    .chat-flow a { color: #737373; text-decoration: none; }
+    .chat-messages { flex: 1; overflow-y: auto; padding-bottom: 24px; min-height: 0; }
+    .chat-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; padding: 48px; }
+    .chat-empty-mark { font-size: 64px; font-weight: 900; color: #181818; margin-bottom: 24px; letter-spacing: -.04em; line-height: 1; }
+    .chat-empty-title { font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 10px; }
+    .chat-empty-copy { font-size: 14px; color: #585858; max-width: 320px; line-height: 1.65; margin-bottom: 36px; }
+    .starter-prompts { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; max-width: 500px; }
+    .starter-prompt { background: #0f0f0f; border: 1px solid #1f1f1f; border-radius: 9px; padding: 9px 16px; font-size: 13px; color: #737373; cursor: pointer; transition: all 150ms ease; }
+    .starter-prompt:hover { border-color: #333; color: #fff; }
+    .chat-stack { display: flex; flex-direction: column; }
+    .user-message { display: flex; justify-content: flex-end; margin-bottom: 20px; }
+    .user-bubble { background: #ffffff; color: #000000; border-radius: 16px 16px 4px 16px; padding: 12px 18px; font-size: 14px; line-height: 1.65; max-width: 70%; white-space: pre-wrap; }
+    .assistant-message { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 20px; }
+    .assistant-avatar { width: 32px; height: 32px; background: #0e0e1e; border: 1px solid #1e1e3e; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: #818cf8; flex-shrink: 0; }
+    .assistant-bubble { border-radius: 4px 16px 16px 16px; padding: 14px 20px; font-size: 14px; line-height: 1.7; max-width: 74%; color: #d0d0d0; white-space: pre-wrap; }
+    .tool-card { background: #060e09; border: 1px solid #0a2010; border-radius: 9px; padding: 11px 16px; font-size: 13px; color: #4ade80; display: flex; align-items: center; gap: 8px; align-self: flex-start; margin: 0 0 20px 44px; }
+    .chat-next { background: #0c0c0c; border: 1px solid #1a1a1a; border-radius: 12px; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 16px; flex-shrink: 0; }
+    .chat-next-title { font-size: 13px; font-weight: 600; color: #fff; margin-bottom: 2px; }
+    .chat-next-copy { font-size: 12px; color: #585858; }
+    .chat-input-wrap { border-top: 1px solid #181818; padding: 20px 0 0; flex-shrink: 0; }
+    .chat-input-row { display: flex; gap: 10px; align-items: flex-end; }
+    .chat-input { flex: 1; min-height: 48px; max-height: 140px; resize: none; line-height: 1.6; padding: 13px 16px; }
+    .chat-send { height: 48px; padding: 0 24px; }
+    .chat-hint { font-size: 11.5px; color: #282828; margin-top: 8px; }
+    @media (max-width: 760px) {
+      .chat-hero, .chat-next { flex-direction: column; }
+      .chat-flow { text-align: left; }
+      .user-bubble, .assistant-bubble { max-width: 88%; }
+    }
+  </style>
+
+  <section class="chat-shell">
+    <header class="chat-hero">
+      <div>
+        <div class="chat-label">Step 3 of 4: your AI chief of staff</div>
+        <h1 class="chat-title">Ask. Delegate.<br><span style="color:#818cf8">Decide.</span></h1>
+        <p class="chat-copy">Your AI has full context: open tasks, today's plan, your history. Ask it anything and it acts, not just answers.</p>
+      </div>
+      <div class="chat-flow">
+        <a href="/tasks">Tasks ✓</a>
+        <a href="/schedule">Schedule ✓</a>
+        <span style="color:#4ade80;font-weight:600">Chat: you are here</span>
+        <a href="/team" style="color:#444444">Team →</a>
+      </div>
+    </header>
+
+    <div id="chat-messages" class="chat-messages">
+      {% if messages %}
+        <div class="chat-stack">
+          {% for message in messages %}
+            {% if message.role == "user" %}
+              <div class="user-message"><div class="user-bubble">{{ message.content }}</div></div>
+            {% else %}
+              <div class="assistant-message"><div class="assistant-avatar">S</div><div class="card assistant-bubble">{{ message.content }}</div></div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      {% else %}
+        <div id="chat-empty-state" class="chat-empty">
+          <div class="chat-empty-mark">S</div>
+          <!-- HERO IMAGE replace S with img src="/static/chat-hero.png" height="72" opacity 0.25 when ready -->
+          <div class="chat-empty-title">What is on your mind?</div>
+          <p class="chat-empty-copy">I know your tasks, your plan, and your history.</p>
+          <div class="starter-prompts">
+            <button class="starter-prompt" type="button">What should I focus on right now?</button>
+            <button class="starter-prompt" type="button">What is overdue?</button>
+            <button class="starter-prompt" type="button">Add a task: review investor deck, high priority</button>
+            <button class="starter-prompt" type="button">What did I plan for today?</button>
+            <button class="starter-prompt" type="button">Am I making progress this week?</button>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+    <section class="chat-next">
+      <div>
+        <div class="chat-next-title">Context captured. Ready to hand off?</div>
+        <p class="chat-next-copy">Open Team when you are ready to bring someone into the system.</p>
+      </div>
+      <a class="btn-ghost" href="/team">Open Team →</a>
+    </section>
+
+    <form id="chat-form" class="chat-input-wrap">
+      <div class="chat-input-row">
+        <textarea id="chat-input" class="input chat-input" name="user_message" rows="1" placeholder="Ask anything... what should I work on? or add task: fix login bug, urgent" required></textarea>
+        <button id="send-btn" class="btn-primary chat-send" type="submit">Send</button>
+      </div>
+      <p class="chat-hint">Enter to send · Shift+Enter for new line · AI can create and update tasks</p>
+      <div id="typing-indicator" class="mt-3 hidden items-center gap-2 text-[12px] text-[#585858]">
+        <span>Solo is thinking</span>
+        <span class="typing-dots" aria-hidden="true"><span></span><span></span><span></span></span>
+      </div>
+    </form>
+  </section>
+
+  <script>
+    const form = document.getElementById("chat-form");
+    const input = document.getElementById("chat-input");
+    const messages = document.getElementById("chat-messages");
+    const sendButton = document.getElementById("send-btn");
+    const typing = document.getElementById("typing-indicator");
+
+    function scrollToBottom() { messages.scrollTop = messages.scrollHeight; }
+
+    function ensureStack() {
+      const empty = document.getElementById("chat-empty-state");
+      if (empty) empty.remove();
+      let stack = messages.querySelector(".chat-stack");
+      if (!stack) {
+        stack = document.createElement("div");
+        stack.className = "chat-stack";
+        messages.appendChild(stack);
+      }
+      return stack;
+    }
+
+    function appendUserMessage(text) {
+      const wrapper = document.createElement("div");
+      wrapper.className = "user-message";
+      const bubble = document.createElement("div");
+      bubble.className = "user-bubble";
+      bubble.textContent = text;
+      wrapper.appendChild(bubble);
+      ensureStack().appendChild(wrapper);
+      scrollToBottom();
+    }
+
+    function appendAssistantMessage() {
+      const wrapper = document.createElement("div");
+      wrapper.className = "assistant-message";
+      wrapper.innerHTML = `<div class="assistant-avatar">S</div><div class="card assistant-bubble"></div>`;
+      ensureStack().appendChild(wrapper);
+      scrollToBottom();
+      return wrapper.querySelector(".assistant-bubble");
+    }
+
+    function appendToolResult(text) {
+      const card = document.createElement("div");
+      card.className = "tool-card";
+      card.innerHTML = `<span>✓</span><span></span>`;
+      card.querySelector("span:last-child").textContent = text;
+      ensureStack().appendChild(card);
+      scrollToBottom();
+    }
+
+    function setStreaming(isStreaming) {
+      input.disabled = isStreaming;
+      sendButton.disabled = isStreaming;
+      typing.classList.toggle("hidden", !isStreaming);
+      typing.classList.toggle("flex", isStreaming);
+    }
+
+    function resizeInput() {
+      input.style.height = "auto";
+      input.style.height = `${Math.min(input.scrollHeight, 140)}px`;
+    }
+
+    document.querySelectorAll(".starter-prompt").forEach((button) => {
+      button.addEventListener("click", () => {
+        input.value = button.textContent;
+        resizeInput();
+        input.focus();
+      });
+    });
+
+    input.addEventListener("input", resizeInput);
+    input.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        form.requestSubmit();
+      }
+    });
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const text = input.value.trim();
+      if (!text) return;
+
+      appendUserMessage(text);
+      input.value = "";
+      resizeInput();
+      const assistantBubble = appendAssistantMessage();
+      setStreaming(true);
+
+      const formData = new FormData();
+      formData.append("user_message", text);
+
+      try {
+        const response = await fetch("/chat/message", { method: "POST", body: formData });
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const events = buffer.split("\n\n");
+          buffer = events.pop();
+
+          for (const eventText of events) {
+            const payload = eventText.split("\n").filter((line) => line.startsWith("data: ")).map((line) => line.slice(6)).join("\n");
+            if (payload === "[DONE]") {
+              setStreaming(false);
+              scrollToBottom();
+              return;
+            }
+            if (payload.startsWith("__TOOL_CALL__:")) {
+              appendToolResult(payload.replace("__TOOL_CALL__:", ""));
+              continue;
+            }
+            assistantBubble.textContent += payload;
+            scrollToBottom();
+          }
+        }
+      } catch (error) {
+        assistantBubble.textContent += `Sorry, the chat stream failed: ${error.message}`;
+      } finally {
+        setStreaming(false);
+        input.focus();
+      }
+    });
+
+    resizeInput();
+    scrollToBottom();
+  </script>
+{% endblock %}

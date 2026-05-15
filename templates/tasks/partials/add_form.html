@@ -1,0 +1,37 @@
+<form
+  class="card mb-4 border-[#3a3a3a] anim-scale-in"
+  hx-post="/tasks"
+  hx-target="#task-table-body"
+  hx-swap="afterbegin"
+  hx-on::after-request="if (event.detail.successful) { this.reset(); document.getElementById('add-form')?.classList.add('hidden'); document.getElementById('task-empty-state')?.classList.add('hidden'); document.querySelector('.data-table')?.classList.remove('hidden'); }"
+>
+  <div class="grid gap-3 md:grid-cols-2">
+    <label class="block">
+      <span class="mb-1.5 block text-[13px] font-medium text-[#a0a0a0]">Title</span>
+      <input id="quick-task-input" class="input" type="text" name="title" required>
+    </label>
+    <label class="block">
+      <span class="mb-1.5 block text-[13px] font-medium text-[#a0a0a0]">Project</span>
+      <input class="input" type="text" name="project">
+    </label>
+  </div>
+  <div class="mt-3 grid gap-3 md:grid-cols-2">
+    <label class="block">
+      <span class="mb-1.5 block text-[13px] font-medium text-[#a0a0a0]">Priority</span>
+      <select class="input" name="priority">
+        <option value="urgent">Urgent</option>
+        <option value="high">High</option>
+        <option value="medium" selected>Medium</option>
+        <option value="low">Low</option>
+      </select>
+    </label>
+    <label class="block">
+      <span class="mb-1.5 block text-[13px] font-medium text-[#a0a0a0]">Due date</span>
+      <input class="input" type="date" name="due_date">
+    </label>
+  </div>
+  <div class="mt-4 flex gap-2">
+    <button class="btn-primary" type="submit">Add task</button>
+    <button class="btn-ghost" type="button" hx-on:click="document.getElementById('add-form').classList.add('hidden')">Cancel</button>
+  </div>
+</form>

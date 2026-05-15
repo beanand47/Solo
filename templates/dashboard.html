@@ -1,0 +1,902 @@
+{% extends "base.html" %}
+
+{% block content %}
+  {% set focus_items = focus_tasks|default([]) %}
+
+  <style>
+    @keyframes dashPulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: .3; transform: scale(1.1); }
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    .dashboard-page {
+      color: #fff;
+    }
+
+    .dashboard-page .btn-primary {
+      background: #1f1f1f;
+      color: #ffffff;
+      border: 1px solid #333333;
+    }
+
+    .dashboard-page .btn-primary:hover {
+      background: #262626;
+      opacity: 1;
+    }
+
+    .dashboard-hero {
+      margin-bottom: 72px;
+    }
+
+    .hero-status {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .hero-dot {
+      width: 8px;
+      height: 8px;
+      background: #4ade80;
+      border-radius: 50%;
+      box-shadow: 0 0 0 3px rgba(74,222,128,0.15);
+      animation: dashPulse 2s infinite;
+    }
+
+    .hero-status-text {
+      font-size: 12px;
+      font-weight: 600;
+      color: #4ade80;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+
+    .hero-title {
+      font-size: 40px;
+      font-weight: 800;
+      letter-spacing: -.04em;
+      color: #fff;
+      line-height: 1.1;
+      margin: 0 0 20px;
+    }
+
+    .hero-title span {
+      color: #737373;
+      font-weight: 400;
+    }
+
+    .typewriter-line {
+      min-height: 36px;
+      margin-bottom: 12px;
+    }
+
+    #typewriter,
+    #tw-cursor {
+      font-size: 20px;
+      font-weight: 400;
+      letter-spacing: -.01em;
+    }
+
+    #typewriter {
+      color: #a0a0a0;
+    }
+
+    #tw-cursor {
+      color: #4ade80;
+      font-weight: 300;
+      animation: blink 1s step-end infinite;
+    }
+
+    .date-line {
+      font-size: 14px;
+      color: #585858;
+      margin-bottom: 0;
+    }
+
+    .metrics-section {
+      margin-bottom: 56px;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 0;
+    }
+
+    .metric-label {
+      margin-bottom: 12px;
+    }
+
+    .metric-number {
+      font-size: 40px;
+      font-weight: 800;
+      letter-spacing: -.05em;
+      color: #fff;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .metric-subtext {
+      font-size: 13px;
+      color: #444444;
+    }
+
+    .focus-section {
+      margin-bottom: 56px;
+    }
+
+    .focus-grid {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .focus-card {
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .focus-header {
+      padding: 24px 28px;
+      border-bottom: 1px solid #1e1e1e;
+    }
+
+    .focus-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      margin: 0 0 4px;
+    }
+
+    .focus-subtitle {
+      font-size: 13px;
+      color: #585858;
+    }
+
+    .focus-subtitle a {
+      color: #737373;
+      text-decoration: none;
+      border-bottom: 1px solid #2a2a2a;
+      margin-left: 8px;
+    }
+
+    #focus-rows {
+      padding: 0 28px;
+    }
+
+    .focus-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 18px 0;
+      border-bottom: 1px solid #141414;
+      transition: padding-left 150ms ease;
+    }
+
+    .focus-row:hover {
+      padding-left: 6px;
+    }
+
+    .focus-row:last-child {
+      border-bottom: 0;
+    }
+
+    .priority-bar {
+      width: 3px;
+      height: 40px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    .focus-copy {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .focus-task-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: #fff;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .focus-project {
+      font-size: 12px;
+      color: #737373;
+      margin-top: 2px;
+    }
+
+    .focus-empty {
+      padding: 64px 28px;
+      text-align: center;
+    }
+
+    .focus-empty-symbol {
+      display: block;
+      font-size: 40px;
+      color: #1f1f1f;
+      margin-bottom: 16px;
+    }
+
+    .focus-empty-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #333333;
+      margin-bottom: 8px;
+    }
+
+    .focus-empty-copy {
+      font-size: 13px;
+      color: #2a2a2a;
+    }
+
+    .focus-empty-copy a {
+      color: #585858;
+      text-decoration: none;
+      border-bottom: 1px solid #222222;
+    }
+
+    .side-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .quick-card {
+      padding: 24px;
+    }
+
+    .quick-heading {
+      margin-bottom: 0;
+    }
+
+    .quick-plus {
+      font-size: 18px;
+      color: #444444;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    .quick-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+      vertical-align: middle;
+    }
+
+    .quick-subtitle {
+      font-size: 12px;
+      color: #585858;
+      margin-top: 4px;
+    }
+
+    .quick-input {
+      margin-top: 14px;
+      margin-bottom: 10px;
+    }
+
+    .quick-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .quick-row select {
+      flex: 1;
+    }
+
+    .ai-nudge {
+      background: linear-gradient(145deg, #0c0c1a, #111122);
+      border: 1px solid #1e1e3a;
+      border-radius: 14px;
+      padding: 24px;
+    }
+
+    .ai-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .09em;
+      color: #6366f1;
+      margin-bottom: 12px;
+    }
+
+    .ai-copy {
+      font-size: 14px;
+      color: #9090a0;
+      line-height: 1.7;
+      margin-bottom: 18px;
+    }
+
+    .ai-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #818cf8;
+      text-decoration: none;
+      padding: 9px 18px;
+      border: 1px solid #2a2a4a;
+      border-radius: 8px;
+      transition: all 150ms ease;
+    }
+
+    .ai-link:hover {
+      background: rgba(99,102,241,0.1);
+      border-color: #4a4a8a;
+    }
+
+    .plan-nudge {
+      padding: 20px 24px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .plan-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .plan-copy {
+      font-size: 12px;
+      color: #585858;
+    }
+
+    .plan-arrow {
+      font-size: 20px;
+      color: #2a2a2a;
+    }
+
+    .why-section {
+      margin-bottom: 56px;
+    }
+
+    .why-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -.02em;
+      margin: 0 0 10px;
+    }
+
+    .why-subtitle {
+      font-size: 15px;
+      color: #737373;
+      max-width: 540px;
+      margin-bottom: 48px;
+    }
+
+    #why-slider {
+      position: relative;
+      overflow: hidden;
+      padding: 0 44px;
+    }
+
+    #why-track {
+      display: flex;
+      gap: 20px;
+      transition: transform 500ms cubic-bezier(0.16,1,0.3,1);
+    }
+
+    .why-card {
+      flex: 0 0 calc((100% - 40px) / 3);
+      min-width: 0;
+      max-width: calc((100% - 40px) / 3);
+      flex-shrink: 0;
+      padding: 28px;
+    }
+
+    .why-emoji {
+      font-size: 28px;
+      margin-bottom: 16px;
+    }
+
+    .why-card-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 10px;
+    }
+
+    .why-card-body {
+      font-size: 13px;
+      color: #737373;
+      line-height: 1.7;
+    }
+
+    .slider-arrow {
+      position: absolute;
+      top: 50%;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: translateY(-50%);
+      z-index: 2;
+    }
+
+    .slider-prev {
+      left: 0;
+    }
+
+    .slider-next {
+      right: 0;
+    }
+
+    .slider-dots {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 20px;
+    }
+
+    .slider-dot {
+      width: 7px;
+      height: 7px;
+      border: 0;
+      padding: 0;
+      background: #2a2a2a;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    .slider-dot.active {
+      background: #737373;
+    }
+
+    .faq-section {
+      margin-bottom: 80px;
+    }
+
+    .faq-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: -.02em;
+      margin: 0 0 18px;
+    }
+
+    .faq-item {
+      border-bottom: 1px solid #1a1a1a;
+      padding: 0;
+    }
+
+    .faq-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 24px;
+      padding: 22px 0;
+      cursor: pointer;
+    }
+
+    .faq-question {
+      font-size: 15px;
+      font-weight: 500;
+      color: #ffffff;
+    }
+
+    .faq-chevron {
+      font-size: 18px;
+      color: #585858;
+      transition: transform 200ms ease;
+    }
+
+    .faq-answer {
+      display: none;
+      padding: 0 0 22px;
+    }
+
+    .faq-answer p {
+      font-size: 14px;
+      color: #737373;
+      line-height: 1.75;
+      max-width: 640px;
+    }
+
+    @media (max-width: 900px) {
+      .metrics-grid,
+      .focus-grid {
+        grid-template-columns: 1fr;
+      }
+
+      #why-slider {
+        padding: 0 42px;
+      }
+
+      .why-card {
+        flex-basis: calc((100% - 20px) / 2);
+        max-width: calc((100% - 20px) / 2);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .hero-title {
+        font-size: 34px;
+      }
+
+      .quick-row {
+        flex-direction: column;
+      }
+
+      #why-slider {
+        padding: 0;
+      }
+
+      .why-card {
+        flex-basis: 100%;
+        max-width: 100%;
+      }
+
+      .slider-arrow {
+        display: none;
+      }
+    }
+  </style>
+
+  <div class="dashboard-page">
+    <section class="dashboard-hero anim-fade-up">
+      <div class="hero-status">
+        <span class="hero-dot" aria-hidden="true"></span>
+        <span class="hero-status-text">Solo is running</span>
+      </div>
+
+      <h1 class="hero-title">
+        {{ greeting }}<br>
+        <span>what are we building today?</span>
+      </h1>
+
+      <div class="typewriter-line">
+        <span id="typewriter"></span><span id="tw-cursor">|</span>
+      </div>
+
+      <p id="today-date" class="date-line"></p>
+    </section>
+
+    <section class="metrics-section anim-fade-up delay-1">
+      <p class="section-label">Your workspace at a glance</p>
+      <div class="metrics-grid">
+        <div class="card">
+          <p class="section-label metric-label">Due Today</p>
+          <div class="metric-number">{{ summary.due_today }}</div>
+          <p class="metric-subtext">tasks scheduled for today</p>
+        </div>
+        <div class="card">
+          <p class="section-label metric-label">Overdue</p>
+          <div class="metric-number" {% if summary.overdue > 0 %}style="color:#f87171"{% endif %}>{{ summary.overdue }}</div>
+          <p class="metric-subtext">{% if summary.overdue > 0 %}needs your attention{% else %}you are on track{% endif %}</p>
+        </div>
+        <div class="card">
+          <p class="section-label metric-label">In Progress</p>
+          <div class="metric-number" style="color:#60a5fa">{{ summary.in_progress }}</div>
+          <p class="metric-subtext">active right now</p>
+        </div>
+        <div class="card">
+          <p class="section-label metric-label">Done This Week</p>
+          <div class="metric-number" style="color:#4ade80">{{ summary.done_this_week }}</div>
+          <p class="metric-subtext">shipped this week ✦</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="focus-section anim-fade-up delay-2">
+      <div class="focus-grid">
+        <div class="card focus-card">
+          <div class="focus-header">
+            <h2 class="focus-title">Today's focus</h2>
+            <p class="focus-subtitle">Urgent and high priority tasks <a href="/tasks">View all tasks →</a></p>
+          </div>
+
+          <div id="focus-rows">
+            {% for task in focus_items %}
+              <div class="focus-row">
+                <span
+                  class="priority-bar"
+                  style="background:{% if task.priority == 'urgent' %}#f87171{% elif task.priority == 'high' %}#fb923c{% elif task.priority == 'medium' %}#60a5fa{% else %}#737373{% endif %}"
+                  aria-hidden="true"
+                ></span>
+                <div class="focus-copy">
+                  <div class="focus-task-title">{{ task.title }}</div>
+                  {% if task.project %}
+                    <div class="focus-project">{{ task.project }}</div>
+                  {% endif %}
+                </div>
+                <span class="priority-{{ task.priority }} capitalize">{{ task.priority }}</span>
+              </div>
+            {% else %}
+              <div class="focus-empty">
+                <span class="focus-empty-symbol">✦</span>
+                <div class="focus-empty-title">Nothing urgent today</div>
+                <p class="focus-empty-copy">Add a task above or ask the AI <a href="/chat">what to focus on</a></p>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="side-stack">
+          <div class="card quick-card">
+            <div class="quick-heading">
+              <span class="quick-plus">+</span><span class="quick-title">Quick capture</span>
+            </div>
+            <p class="quick-subtitle">Do not lose that thought.</p>
+            <form hx-post="/tasks" hx-target="#focus-rows" hx-swap="afterbegin" hx-include="[name='title'], [name='priority']" hx-on::after-request="if (event.detail.successful) this.reset()">
+              <input id="quick-task-input" class="input quick-input" name="title" placeholder="What needs to get done?" required>
+              <div class="quick-row">
+                <select class="input" name="priority">
+                  <option value="urgent">Urgent</option>
+                  <option value="high">High</option>
+                  <option value="medium" selected>Medium</option>
+                  <option value="low">Low</option>
+                </select>
+                <button class="btn-primary" type="submit">Add</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="ai-nudge">
+            <div class="ai-label">✦ AI Chief of Staff</div>
+            <p class="ai-copy">What should I work on right now? Just ask. I know your tasks, your plan, and your history.</p>
+            <a class="ai-link" href="/chat">Open chat →</a>
+          </div>
+
+          <div class="card plan-nudge" onclick="window.location.href='/schedule'" role="button" tabindex="0" onkeydown="if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); window.location.href='/schedule'; }">
+            <div>
+              <div class="plan-title">📅 Plan your day</div>
+              <p class="plan-copy">Brain dump → AI schedule in 30 seconds</p>
+            </div>
+            <span class="plan-arrow">→</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="why-section anim-fade-up delay-3">
+      <p class="section-label">Why builders choose Solo</p>
+      <h2 class="why-title">Your ideas are good. Your system should be too.</h2>
+      <p class="why-subtitle">Solo founders do not fail because of bad ideas. They fail because of chaos: scattered notes, forgotten tasks, no real plan. Solo fixes that.</p>
+
+      <div id="why-slider">
+        <button class="btn-ghost slider-arrow slider-prev" type="button" aria-label="Previous card">←</button>
+        <div id="why-track">
+          <article class="card why-card">
+            <div class="why-emoji">🧠</div>
+            <h3 class="why-card-title">Your second brain</h3>
+            <p class="why-card-body">Everything in your head, tasks, ideas, blockers, goes into Solo. Nothing gets lost. Your mind stays clear for the work that matters.</p>
+          </article>
+          <article class="card why-card">
+            <div class="why-emoji">⚡</div>
+            <h3 class="why-card-title">Plan in 2 minutes</h3>
+            <p class="why-card-body">Write a brain dump each morning. Solo reads your tasks and energy, then builds a focused time-blocked schedule so you stop guessing what to do next.</p>
+          </article>
+          <article class="card why-card">
+            <div class="why-emoji">🤖</div>
+            <h3 class="why-card-title">AI that actually knows you</h3>
+            <p class="why-card-body">Your AI assistant has full context: open tasks, today's plan, your history. Ask it anything and it responds with real answers, not generic advice.</p>
+          </article>
+          <article class="card why-card">
+            <div class="why-emoji">🎯</div>
+            <h3 class="why-card-title">Stop switching tools</h3>
+            <p class="why-card-body">Notion for tasks. Calendar for planning. Notes app for ideas. Slack for everything else. Solo replaces the chaos with one calm, focused workspace.</p>
+          </article>
+          <article class="card why-card">
+            <div class="why-emoji">🚀</div>
+            <h3 class="why-card-title">Built to scale with you</h3>
+            <p class="why-card-body">Start solo. When you hire your first teammate, Solo writes their onboarding brief automatically. Your systems grow without starting over.</p>
+          </article>
+          <article class="card why-card">
+            <div class="why-emoji">🔒</div>
+            <h3 class="why-card-title">Your data, your focus</h3>
+            <p class="why-card-body">No feed. No notifications designed to distract you. Solo is a tool, not a platform. It serves you, not advertisers.</p>
+          </article>
+        </div>
+        <button class="btn-ghost slider-arrow slider-next" type="button" aria-label="Next card">→</button>
+      </div>
+      <div id="why-dots" class="slider-dots"></div>
+    </section>
+
+    <section class="faq-section anim-fade-up delay-4">
+      <p class="section-label">Questions</p>
+      <h2 class="faq-title">Frequently asked</h2>
+
+      <div class="faq-item">
+        <div class="faq-header">
+          <div class="faq-question">Is Solo just another to-do app?</div>
+          <div class="faq-chevron">+</div>
+        </div>
+        <div class="faq-answer">
+          <p>No. Solo combines task management, AI-powered day planning, and a contextual AI assistant into one system. The difference is that Solo knows your full context: your tasks, your plan, your history, and uses it to help you make better decisions, not just check boxes.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-header">
+          <div class="faq-question">How does the AI actually help me?</div>
+          <div class="faq-chevron">+</div>
+        </div>
+        <div class="faq-answer">
+          <p>The AI has access to all your open tasks, today's schedule, and your conversation history. You can ask it what to focus on, tell it to add or update tasks, get a summary of what is overdue, or just think out loud. It responds with specific, useful answers, not generic productivity advice.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-header">
+          <div class="faq-question">What happens when I want to grow my team?</div>
+          <div class="faq-chevron">+</div>
+        </div>
+        <div class="faq-answer">
+          <p>Solo has a built-in team handoff feature. When you invite your first team member, the AI automatically generates a personalised onboarding brief explaining what you are building, your current priorities, and how you work. They hit the ground running before day one.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-header">
+          <div class="faq-question">Is my data private?</div>
+          <div class="faq-chevron">+</div>
+        </div>
+        <div class="faq-answer">
+          <p>Yes. Your tasks, plans, and conversations are stored in your own database. Solo does not sell your data or use it for advertising. The AI calls are made to OpenAI using your own API key, so you stay in full control.</p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-header">
+          <div class="faq-question">Do I need to pay for anything?</div>
+          <div class="faq-chevron">+</div>
+        </div>
+        <div class="faq-answer">
+          <p>Solo itself is free and open source. The only cost is your OpenAI API key for the AI features, which costs a few cents per day for normal use. You own and run the app yourself.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    document.getElementById("today-date").textContent = new Date().toLocaleDateString(undefined, {
+      weekday: "long",
+      month: "long",
+      day: "numeric"
+    });
+
+    const phrases = [
+      "Do you feel scattered today?",
+      "What is the one thing that matters most right now?",
+      "Are you working on the right thing?",
+      "When did you last finish what you started?",
+      "Your ideas deserve a real system.",
+      "Get your mind clear. Start here.",
+      "What would make today feel like a win?",
+      "Stop managing chaos. Start building.",
+      "What are you avoiding right now?",
+      "You built this to ship. So let us ship."
+    ];
+
+    const typewriter = document.getElementById("typewriter");
+    let phraseIndex = 0;
+    let characterIndex = 0;
+    let deleting = false;
+
+    function runTypewriter() {
+      const phrase = phrases[phraseIndex];
+
+      if (!deleting) {
+        characterIndex += 1;
+        typewriter.textContent = phrase.slice(0, characterIndex);
+
+        if (characterIndex === phrase.length) {
+          deleting = true;
+          window.setTimeout(runTypewriter, 2400);
+          return;
+        }
+
+        window.setTimeout(runTypewriter, 50);
+        return;
+      }
+
+      characterIndex -= 1;
+      typewriter.textContent = phrase.slice(0, characterIndex);
+
+      if (characterIndex === 0) {
+        deleting = false;
+        phraseIndex = (phraseIndex + 1) % phrases.length;
+        window.setTimeout(runTypewriter, 350);
+        return;
+      }
+
+      window.setTimeout(runTypewriter, 25);
+    }
+
+    window.setTimeout(runTypewriter, 1000);
+
+    const slider = document.getElementById("why-slider");
+    const track = document.getElementById("why-track");
+    const cards = Array.from(track.querySelectorAll(".why-card"));
+    const dotsRoot = document.getElementById("why-dots");
+    let slideIndex = 0;
+    let sliderTimer;
+
+    cards.forEach((_, index) => {
+      const dot = document.createElement("button");
+      dot.type = "button";
+      dot.className = "slider-dot";
+      dot.setAttribute("aria-label", `Go to card ${index + 1}`);
+      dot.addEventListener("click", () => goToSlide(index));
+      dotsRoot.appendChild(dot);
+    });
+
+    function cardStep() {
+      const card = cards[0];
+      const cardWidth = card.getBoundingClientRect().width;
+      const gap = parseFloat(getComputedStyle(track).gap) || 20;
+      return cardWidth + gap;
+    }
+
+    function maxSlideIndex() {
+      const visibleCards = Math.max(1, Math.floor((track.clientWidth + 20) / cardStep()));
+      return Math.max(0, cards.length - visibleCards);
+    }
+
+    function updateSlider() {
+      const maxIndex = maxSlideIndex();
+      if (slideIndex > maxIndex) slideIndex = 0;
+      track.style.transform = `translateX(${-slideIndex * cardStep()}px)`;
+      dotsRoot.querySelectorAll(".slider-dot").forEach((dot, index) => {
+        dot.classList.toggle("active", index === slideIndex);
+      });
+    }
+
+    function goToSlide(index) {
+      const maxIndex = maxSlideIndex();
+      slideIndex = index > maxIndex ? 0 : Math.max(0, index);
+      updateSlider();
+      restartSlider();
+    }
+
+    function moveSlider(direction) {
+      const maxIndex = maxSlideIndex();
+      slideIndex = slideIndex + direction;
+      if (slideIndex > maxIndex) slideIndex = 0;
+      if (slideIndex < 0) slideIndex = maxIndex;
+      updateSlider();
+      restartSlider();
+    }
+
+    function restartSlider() {
+      window.clearInterval(sliderTimer);
+      sliderTimer = window.setInterval(() => moveSlider(1), 3500);
+    }
+
+    document.querySelector(".slider-prev").addEventListener("click", () => moveSlider(-1));
+    document.querySelector(".slider-next").addEventListener("click", () => moveSlider(1));
+    window.addEventListener("resize", updateSlider);
+    updateSlider();
+    restartSlider();
+
+    document.querySelectorAll(".faq-header").forEach((header) => {
+      header.addEventListener("click", () => {
+        const answer = header.nextElementSibling;
+        const chevron = header.querySelector(".faq-chevron");
+        const isOpen = answer.style.display === "block";
+        answer.style.display = isOpen ? "none" : "block";
+        chevron.textContent = isOpen ? "+" : "−";
+      });
+    });
+  </script>
+{% endblock %}

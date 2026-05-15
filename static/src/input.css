@@ -1,0 +1,4 @@
+/* Tailwind utilities are available in templates via class names. All custom styles live in static/style.css and are imported separately. */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

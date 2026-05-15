@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ title|default("Solo") }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+    <link rel="icon" href="{{ url_for('static', path='favicon.svg') }}" type="image/svg+xml">
+    <link rel="stylesheet" href="/static/style.css">
+  </head>
+  <body>
+    {% set current_path = request.url.path %}
+
+    <header class="floating-nav">
+      <a href="/dashboard" class="nav-logo" aria-label="Solo dashboard">
+        <span class="nav-logo-mark" aria-hidden="true">S</span>
+        <span class="nav-logo-text">Solo</span>
+      </a>
+      <!-- LOGO: replace this div with img src="/static/logo.png" height="22" when ready -->
+
+      <nav class="nav-links" aria-label="Primary navigation">
+        <a href="/dashboard" class="nav-link {% if current_path == '/dashboard' %}active{% endif %}">
+          Dashboard
+        </a>
+        <a href="/tasks" class="nav-link {% if current_path == '/tasks' %}active{% endif %}">
+          Tasks
+        </a>
+        <a href="/schedule" class="nav-link {% if current_path == '/schedule' %}active{% endif %}">
+          Schedule
+        </a>
+        <a href="/chat" class="nav-link {% if current_path == '/chat' %}active{% endif %}">
+          Chat
+        </a>
+        <a href="/team" class="nav-link {% if current_path == '/team' %}active{% endif %}">
+          Team
+        </a>
+      </nav>
+
+      <div class="nav-right">
+        <div class="nav-avatar" aria-label="{% if current_user %}{{ current_user.name }}{% else %}Founder{% endif %}">
+          {% if current_user %}{{ current_user.name[0].upper() }}{% else %}F{% endif %}
+        </div>
+        <span class="nav-username">{% if current_user %}{{ current_user.name }}{% else %}Founder{% endif %}</span>
+        <a class="nav-logout" href="/logout">Sign out</a>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <div id="page-content" class="content-wrap {% block page_content_class %}{% endblock %}">
+        <div class="page-content">
+          {% block content %}{% endblock %}
+        </div>
+      </div>
+    </main>
+
+    <input id="global-search" class="sr-only" aria-label="Search" placeholder="Search">
+    <div id="toast-root"></div>
+    <script>
+      const toastMessages = {
+        "task-created": "Task created",
+        "task-deleted": "Task deleted",
+        "task-updated": "Task updated",
+        "team-member-invited": "Team member invited",
+        "brief-regenerated": "Onboarding brief regenerated"
+      };
+
+      function showToast(message) {
+        const root = document.getElementById("toast-root");
+        const toast = document.createElement("div");
+        toast.className = "toast";
+        toast.textContent = message;
+        root.appendChild(toast);
+        window.setTimeout(() => {
+          toast.style.opacity = "0";
+          toast.style.transform = "translateY(6px)";
+          window.setTimeout(() => toast.remove(), 180);
+        }, 3000);
+      }
+
+      document.body.addEventListener("htmx:afterOnLoad", (event) => {
+        const trigger = event.detail.xhr.getResponseHeader("HX-Trigger");
+        if (!trigger) return;
+        const names = trigger.trim().startsWith("{") ? Object.keys(JSON.parse(trigger)) : trigger.split(",");
+        names.forEach((name) => {
+          const message = toastMessages[name.trim()];
+          if (message) showToast(message);
+        });
+      });
+
+      document.addEventListener("keydown", (event) => {
+        const target = event.target;
+        const isTyping = target && ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName);
+        if (isTyping) return;
+
+        if (event.key === "n") {
+          event.preventDefault();
+          const quickInput = document.getElementById("quick-task-input") || document.querySelector("[name='title']");
+          quickInput?.focus();
+        }
+        if (event.key === "c") {
+          event.preventDefault();
+          window.location.href = "/chat";
+        }
+        if (event.key === "/") {
+          event.preventDefault();
+          document.getElementById("global-search")?.focus();
+        }
+      });
+
+      document.body.addEventListener("click", (event) => {
+        const toggle = event.target.closest(".brief-toggle");
+        if (!toggle) return;
+        const card = toggle.closest(".card");
+        const content = card?.querySelector(".brief-content");
+        const icon = toggle.querySelector("svg");
+        content?.classList.toggle("hidden");
+        icon?.classList.toggle("rotate-90");
+      });
+
+      const floatingNav = document.querySelector(".floating-nav");
+      const updateFloatingNav = () => {
+        floatingNav?.classList.toggle("scrolled", window.scrollY > 8);
+      };
+      updateFloatingNav();
+      window.addEventListener("scroll", updateFloatingNav, { passive: true });
+
+      document.addEventListener("click", (event) => {
+        const link = event.target.closest("a[href]");
+        if (!link) return;
+        if (link.target || link.hasAttribute("download")) return;
+
+        const url = new URL(link.href, window.location.href);
+        const isSamePage = url.pathname === window.location.pathname && url.hash;
+        if (url.origin !== window.location.origin || isSamePage) return;
+
+        event.preventDefault();
+        document.body.classList.add("page-transition-out");
+        window.setTimeout(() => {
+          window.location.href = url.href;
+        }, 140);
+      });
+    </script>
+  </body>
+</html>

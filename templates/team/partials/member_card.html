@@ -1,0 +1,37 @@
+<article id="member-{{ member.id }}" class="card anim-fade-up delay-{{ loop.index if loop is defined and loop.index <= 6 else 1 }}">
+  <div class="flex items-start gap-3">
+    <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#1f1f1f] text-[12px] font-semibold uppercase text-[#a0a0a0]">
+      {{ member.name.split()|map('first')|join('')|truncate(2, True, '') }}
+    </div>
+    <div class="min-w-0 flex-1">
+      <div class="flex items-center gap-2">
+        <h2 class="truncate text-[15px] font-semibold text-white">{{ member.name }}</h2>
+        <span class="rounded-[5px] border border-[#2a2a2a] bg-[#1f1f1f] px-2 py-0.5 text-[11px] font-medium text-[#a0a0a0]">{{ member.role }}</span>
+      </div>
+      <p class="mt-1.5 text-[13px] text-[#737373]">{{ stat.assigned }} tasks assigned</p>
+    </div>
+  </div>
+
+  {% set progress = ((stat.assigned - stat.open) * 100 / stat.assigned) if stat.assigned else 0 %}
+  <div class="mt-4">
+    <div class="mb-1.5 flex items-center justify-between text-[11px] text-[#585858]">
+      <span>Task progress</span>
+      <span>{{ stat.assigned - stat.open }}/{{ stat.assigned }} done</span>
+    </div>
+    <div class="h-1.5 overflow-hidden rounded-full bg-[#101010]">
+      <div class="h-full rounded-full bg-[#4ade80]" style="width: {{ progress }}%"></div>
+    </div>
+  </div>
+
+  <div class="my-3 border-t border-[#1f1f1f]"></div>
+
+  <button class="brief-toggle flex w-full cursor-pointer items-center justify-between text-left" type="button">
+    <span class="text-[13px] font-medium text-white">Onboarding brief</span>
+    <svg class="h-4 w-4 text-[#585858] transition-transform" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path d="m6 4 4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+    </svg>
+  </button>
+  <div class="brief-content hidden pt-2.5">
+    {% include "team/partials/brief.html" %}
+  </div>
+</article>

@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <style>
+    .flow-hero { margin-bottom: 56px; }
+    .flow-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .09em; color: #444444; margin-bottom: 14px; }
+    .flow-title { font-size: 36px; font-weight: 800; letter-spacing: -.04em; color: #fff; line-height: 1.1; margin: 0 0 18px; }
+    .flow-copy { font-size: 15px; color: #737373; line-height: 1.7; max-width: 540px; }
+    .workflow-complete { display: flex; align-items: center; gap: 10px; font-size: 13px; margin-bottom: 48px; flex-wrap: wrap; }
+    .workflow-complete a { color: #737373; text-decoration: none; }
+    .workflow-check { color: #4ade80; }
+    .workflow-arrow { color: #2a2a2a; }
+    .workflow-current { color: #4ade80; font-weight: 600; }
+    .team-story-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: #1a1a1a; border-radius: 14px; overflow: hidden; margin-bottom: 40px; }
+    .team-story-col { background: #0e0e0e; padding: 28px 26px; }
+    .team-story-mid { border-left: 1px solid #1a1a1a; border-right: 1px solid #1a1a1a; }
+    .story-label { font-size: 11px; text-transform: uppercase; color: #555555; font-weight: 600; margin-bottom: 12px; letter-spacing: .08em; }
+    .story-body { font-size: 13px; color: #585858; line-height: 1.7; }
+    .invite-card { max-width: 520px; margin: 0 auto; padding: 40px; }
+    .icon-cluster { display: flex; justify-content: center; margin-bottom: 28px; }
+    .cluster-circle { width: 42px; height: 42px; background: #141414; border: 2px solid #0a0a0a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+    .cluster-circle + .cluster-circle { margin-left: -12px; }
+    .cluster-circle:nth-child(1) { z-index: 1; }
+    .cluster-circle:nth-child(2) { z-index: 2; }
+    .cluster-circle:nth-child(3) { z-index: 3; }
+    .invite-heading { text-align: center; margin-bottom: 32px; }
+    .invite-title { font-size: 22px; font-weight: 800; letter-spacing: -.03em; color: #fff; margin-bottom: 10px; }
+    .invite-copy { font-size: 14px; color: #737373; line-height: 1.6; }
+    .invite-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+    .invite-email { margin-bottom: 22px; }
+    .invite-submit { width: 100%; height: 46px; font-size: 15px; }
+    .invite-note { font-size: 12px; color: #333333; text-align: center; margin-top: 14px; }
+    .team-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 28px; }
+    .member-count { font-size: 16px; font-weight: 700; color: #fff; }
+    .member-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .member-card { padding: 26px; }
+    .member-row { display: flex; align-items: center; }
+    .member-avatar { width: 40px; height: 40px; background: #141414; border: 1px solid #242424; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700; color: #a0a0a0; flex-shrink: 0; }
+    .member-copy { margin-left: 14px; min-width: 0; }
+    .member-name { font-size: 15px; font-weight: 600; color: #fff; }
+    .member-meta { font-size: 12px; color: #737373; margin-top: 2px; }
+    .member-divider { height: 1px; background: #1a1a1a; margin: 16px 0; }
+    .brief-toggle { width: 100%; display: flex; justify-content: space-between; align-items: center; color: #555; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .09em; cursor: pointer; border: 0; background: transparent; padding: 0; }
+    .brief-content { display: none; font-size: 13px; color: #a0a0a0; line-height: 1.75; padding-top: 12px; white-space: pre-wrap; }
+    .hidden { display: none; }
+    .next-step-nudge { margin-top: 40px; background: #0c0c0c; border: 1px solid #1a1a1a; border-radius: 12px; padding: 22px 28px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .next-step-title { font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+    .next-step-copy { font-size: 13px; color: #585858; }
+    @media (max-width: 780px) {
+      .team-story-strip, .member-grid, .invite-grid { grid-template-columns: 1fr; }
+      .team-header, .next-step-nudge { align-items: stretch; flex-direction: column; }
+    }
+  </style>
+
+  <section class="flow-hero">
+    <div class="flow-label">Step 4 of 4: grow when you are ready</div>
+    <h1 class="flow-title">You started solo.<br><span style="color:#4ade80">Now build your team.</span></h1>
+    <p class="flow-copy">Most solo founders wait too long to bring in help because handoffs are painful. Solo makes it effortless. Invite your first hire and the AI instantly writes their onboarding brief, assigns context, and gets them up to speed in minutes.</p>
+  </section>
+
+  <div class="workflow-complete">
+    <span class="workflow-check">✓</span><a href="/tasks">Tasks ✓</a>
+    <span class="workflow-arrow">→</span>
+    <span class="workflow-check">✓</span><a href="/schedule">Schedule ✓</a>
+    <span class="workflow-arrow">→</span>
+    <span class="workflow-check">✓</span><a href="/chat">Chat ✓</a>
+    <span class="workflow-arrow">→</span>
+    <span class="workflow-current">Team: the payoff</span>
+  </div>
+
+  {% if not members %}
+    <section class="team-story-strip">
+      <div class="team-story-col">
+        <div class="story-label">Before Solo</div>
+        <p class="story-body">New hires spend their first week asking what are we building and what do I work on. You lose 10 hours explaining context that lives only in your head.</p>
+      </div>
+      <div class="team-story-col team-story-mid">
+        <div class="story-label" style="color:#4ade80">With Solo</div>
+        <p class="story-body">You invite them. The AI reads your tasks, projects, and priorities, then writes a tailored onboarding brief in 10 seconds.</p>
+      </div>
+      <div class="team-story-col">
+        <div class="story-label" style="color:#818cf8">Result</div>
+        <p class="story-body">Your new hire hits the ground running. They know the mission, the priorities, and how you work before day one.</p>
+      </div>
+    </section>
+
+    <section class="card invite-card">
+      <div class="icon-cluster" aria-hidden="true">
+        <div class="cluster-circle">👤</div>
+        <div class="cluster-circle">✦</div>
+        <div class="cluster-circle">👥</div>
+      </div>
+      <!-- TEAM IMAGE replace icon cluster with img src="/static/team-graphic.png" height="60" display block margin 0 auto 28px -->
+      <div class="invite-heading">
+        <div class="invite-title">Invite your first teammate</div>
+        <p class="invite-copy">The AI writes their onboarding brief automatically. No setup required.</p>
+      </div>
+      <form action="/team/invite" method="POST">
+        <div class="invite-grid">
+          <input class="input" name="name" required placeholder="Alex Chen">
+          <select class="input" name="role">
+            <option value="Admin">Admin</option>
+            <option value="Member" selected>Member</option>
+            <option value="Viewer">Viewer</option>
+          </select>
+        </div>
+        <input class="input invite-email" name="email" type="email" required placeholder="alex@company.com">
+        <button class="btn-primary invite-submit" type="submit">Send invite and generate brief ✦</button>
+      </form>
+      <p class="invite-note">The AI reads your current tasks to write a personalised brief. No manual setup.</p>
+    </section>
+  {% else %}
+    <section>
+      <div class="team-header">
+        <div class="member-count">{{ members|length }} member{% if members|length != 1 %}s{% endif %} in your workspace</div>
+        <button class="btn-primary" type="button" onclick="document.getElementById('team-inline-invite').classList.toggle('hidden'); document.querySelector('#team-inline-invite [name=name]')?.focus();">Invite member</button>
+      </div>
+
+      <form id="team-inline-invite" class="card invite-card hidden" action="/team/invite" method="POST" style="margin-bottom:24px">
+        <div class="invite-grid">
+          <input class="input" name="name" required placeholder="Alex Chen">
+          <select class="input" name="role">
+            <option value="Admin">Admin</option>
+            <option value="Member" selected>Member</option>
+            <option value="Viewer">Viewer</option>
+          </select>
+        </div>
+        <input class="input invite-email" name="email" type="email" required placeholder="alex@company.com">
+        <button class="btn-primary invite-submit" type="submit">Send invite and generate brief ✦</button>
+      </form>
+
+      <div class="member-grid">
+        {% for member in members %}
+          <article class="card member-card">
+            <div class="member-row">
+              <div class="member-avatar">{{ member.name[0].upper() }}</div>
+              <div class="member-copy">
+                <div class="member-name">{{ member.name }}</div>
+                <div class="member-meta">{{ member.role }} · {{ member.email }}</div>
+              </div>
+            </div>
+            <div class="member-divider"></div>
+            {% if member.onboarding_brief %}
+              <button class="brief-toggle" type="button">
+                <span>Onboarding brief</span>
+                <span class="brief-mark">+</span>
+              </button>
+              <div class="brief-content">{{ member.onboarding_brief }}</div>
+            {% endif %}
+          </article>
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+
+  <section class="next-step-nudge">
+    <div>
+      <div class="next-step-title">Your operating system is complete.</div>
+      <p class="next-step-copy">Keep capturing, planning, executing, and handing off from one calm workspace.</p>
+    </div>
+    <a class="btn-ghost" href="/dashboard">Back to Dashboard →</a>
+  </section>
+
+  <script>
+    document.querySelectorAll(".brief-toggle").forEach((button) => {
+      button.addEventListener("click", () => {
+        const content = button.nextElementSibling;
+        const mark = button.querySelector(".brief-mark");
+        const isOpen = content.style.display === "block";
+        content.style.display = isOpen ? "none" : "block";
+        mark.textContent = isOpen ? "+" : "−";
+      });
+    });
+  </script>
+{% endblock %}

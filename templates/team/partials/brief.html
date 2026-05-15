@@ -1,0 +1,12 @@
+<div id="brief-{{ member.id }}">
+  <div class="whitespace-pre-wrap text-[13px] leading-[1.7] text-[#a0a0a0]">{{ member.onboarding_brief }}</div>
+  <button
+    class="btn-ghost mt-4"
+    type="button"
+    hx-post="/team/members/{{ member.id }}/brief/regenerate"
+    hx-target="#brief-{{ member.id }}"
+    hx-swap="outerHTML"
+  >
+    Regenerate brief
+  </button>
+</div>
