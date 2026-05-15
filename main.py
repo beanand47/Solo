@@ -8,7 +8,7 @@ from fastapi import Depends, FastAPI, Request
 from fastapi.exceptions import HTTPException
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
-from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.responses import JSONResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import sentry_sdk
@@ -170,6 +170,11 @@ async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
 @app.get("/")
 def home():
     return RedirectResponse(url="/login", status_code=303)
+
+
+@app.head("/", include_in_schema=False)
+def root_probe():
+    return Response(status_code=204)
 
 
 @app.get("/favicon.ico", include_in_schema=False)

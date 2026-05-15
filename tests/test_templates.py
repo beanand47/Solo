@@ -1,3 +1,16 @@
+def test_home_redirects_to_login(client):
+    response = client.get("/")
+
+    assert response.status_code == 303
+    assert response.headers["location"] == "/login"
+
+
+def test_root_head_probe_succeeds(client):
+    response = client.head("/")
+
+    assert response.status_code == 204
+
+
 def test_dashboard_renders(authenticated_client):
     response = authenticated_client.get("/dashboard")
 
