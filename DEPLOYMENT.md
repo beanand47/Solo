@@ -17,7 +17,7 @@
 3. Set build command: `pip install -r requirements.txt`.
 4. Set start command: `alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port $PORT`.
 5. Add PostgreSQL and Redis from Render dashboard.
-6. Add all environment variables in Render dashboard.
+6. Add all environment variables in Render dashboard. Set `ALLOWED_HOSTS` to your Render hostname, for example `solo-e9op.onrender.com`. Render's `RENDER_EXTERNAL_HOSTNAME` is also trusted automatically when present.
 
 ## Option 3 - Docker on any VPS
 

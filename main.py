@@ -56,6 +56,18 @@ from models import User
 from services.task_service import get_all_tasks, get_tasks_summary
 
 
+def get_allowed_hosts() -> list[str]:
+    allowed_hosts = [
+        host.strip()
+        for host in os.getenv("ALLOWED_HOSTS", "*").split(",")
+        if host.strip()
+    ]
+    render_hostname = os.getenv("RENDER_EXTERNAL_HOSTNAME", "").strip()
+    if render_hostname and render_hostname not in allowed_hosts:
+        allowed_hosts.append(render_hostname)
+    return allowed_hosts or ["*"]
+
+
 app = FastAPI(title="Solo")
 app.state.limiter = limiter
 app.add_exception_handler(HTTPException, http_exception_handler)
@@ -63,7 +75,7 @@ app.add_exception_handler(Exception, general_exception_handler)
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 app.add_middleware(
     TrustedHostMiddleware,
-    allowed_hosts=os.getenv("ALLOWED_HOSTS", "*").split(","),
+    allowed_hosts=get_allowed_hosts(),
 )
 app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
 app.include_router(auth_router)
@@ -158,6 +170,11 @@ async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
 @app.get("/")
 def home():
     return RedirectResponse(url="/login", status_code=303)
+
+
+@app.get("/favicon.ico", include_in_schema=False)
+def favicon():
+    return RedirectResponse(url="/static/favicon.svg", status_code=307)
 
 
 @app.get("/health")
