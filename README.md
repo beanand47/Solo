@@ -95,16 +95,6 @@ Optional but recommended for production:
 
 - `DATABASE_URL` for a managed database (PostgreSQL recommended)
 
-## Why this is portfolio-worthy
-
-This project is more than a technical sample. It shows that you can:
-
-- build a real product flow from user onboarding to daily execution
-- integrate AI thoughtfully into a user experience
-- structure backend code for readability and reuse
-- document deployment and environment needs clearly
-- ship a live product-ready service with production mindset
-
 ## Notes
 
 - Keep `.env` out of source control
