@@ -167,14 +167,11 @@ async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
     )
 
 
-@app.get("/")
-def home():
+@app.api_route("/", methods=["GET", "HEAD"])
+def home(request: Request):
+    if request.method == "HEAD":
+        return Response(status_code=204)
     return RedirectResponse(url="/login", status_code=303)
-
-
-@app.head("/", include_in_schema=False)
-def root_probe():
-    return Response(status_code=204)
 
 
 @app.get("/favicon.ico", include_in_schema=False)
