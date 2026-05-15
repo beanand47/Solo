@@ -18,7 +18,7 @@ def get_logger(name: str) -> logging.Logger:
 
         if ENV == "production":
             formatter = jsonlogger.JsonFormatter(
-                fmt="%(asctime)s %(name)s %(levelname)s %(message)s",
+                fmt="%(asctime)s %(name)s %(levelname)s %(message)s %(exc_info)s",
                 datefmt="%Y-%m-%dT%H:%M:%SZ",
             )
         else:
