@@ -40,9 +40,9 @@ def tasks_page(
         .all()
     )
     return templates.TemplateResponse(
+        request,
         "tasks.html",
         {
-            "request": request,
             "title": "Tasks - Solo",
             "tasks": tasks,
             "members": members,
@@ -76,8 +76,9 @@ def create_task(
     )
     if source == "dashboard":
         response = templates.TemplateResponse(
+            request,
             "dashboard/partials/quick_add_success.html",
-            {"request": request, "task": task, "current_user": current_user},
+            {"task": task, "current_user": current_user},
         )
         response.headers["HX-Trigger"] = "task-created"
         return response
@@ -88,9 +89,9 @@ def create_task(
         .all()
     )
     response = templates.TemplateResponse(
+        request,
         "tasks/partials/row.html",
         {
-            "request": request,
             "task": task,
             "members": members,
             "has_team": bool(members),
@@ -112,8 +113,9 @@ def update_task_status(
     if task is None:
         return Response(status_code=404)
     response = templates.TemplateResponse(
+        request,
         "tasks/partials/status_badge.html",
-        {"request": request, "task": task, "current_user": current_user},
+        {"task": task, "current_user": current_user},
     )
     response.headers["HX-Trigger"] = "task-updated"
     return response
@@ -137,9 +139,9 @@ def assign_task(
         .all()
     )
     response = templates.TemplateResponse(
+        request,
         "tasks/partials/row.html",
         {
-            "request": request,
             "task": task,
             "members": members,
             "has_team": bool(members),

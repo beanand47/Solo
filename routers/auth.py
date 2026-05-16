@@ -80,8 +80,9 @@ def _password_has_number_or_special(password: str) -> bool:
 
 def _render(template_name: str, request: Request, **context):
     return templates.TemplateResponse(
+        request,
         template_name,
-        {"request": request, "error": None, "success": None, **context},
+        {"error": None, "success": None, **context},
     )
 
 

@@ -61,8 +61,7 @@ pip install -r requirements.txt
 ```env
 OPENAI_API_KEY=sk-your-openai-key
 SECRET_KEY=your-secret-key
-APP_ENV=development
-COOKIE_SECURE=false
+ENV=development  # or APP_ENV=development
 DATABASE_URL=sqlite:///./solo_ai.db
 ```
 
@@ -88,8 +87,7 @@ Required environment variables:
 
 - `OPENAI_API_KEY`
 - `SECRET_KEY`
-- `APP_ENV=production`
-- `COOKIE_SECURE=true`
+- `ENV=production` (or `APP_ENV=production`)
 
 Optional but recommended for production:
 

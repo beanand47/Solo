@@ -60,9 +60,9 @@ def schedule_page(
     )
     plan, reflection_questions = _plan_payload(day_plan)
     return templates.TemplateResponse(
+        request,
         "schedule.html",
         {
-            "request": request,
             "title": "Schedule - Solo",
             "day_plan": day_plan,
             "plan": plan,
@@ -95,18 +95,18 @@ def create_plan(
                 signal.alarm(0)
     except TimeoutError:
         return templates.TemplateResponse(
+            request,
             "schedule/partials/error.html",
             {
-                "request": request,
                 "message": "The AI is taking too long right now. Please try again in a moment.",
                 "current_user": current_user,
             },
         )
     except Exception:
         return templates.TemplateResponse(
+            request,
             "schedule/partials/error.html",
             {
-                "request": request,
                 "message": "Something went wrong generating your plan. Please try again.",
                 "current_user": current_user,
             },
@@ -135,9 +135,9 @@ def create_plan(
     db.commit()
     db.refresh(day_plan)
     return templates.TemplateResponse(
+        request,
         "schedule/partials/plan.html",
         {
-            "request": request,
             "day_plan": day_plan,
             "plan": plan,
             "reflection_questions": reflection_questions,
@@ -164,6 +164,7 @@ def save_reflection(
     day_plan.reflection = reflection
     db.commit()
     return templates.TemplateResponse(
+        request,
         "schedule/partials/reflection_success.html",
-        {"request": request, "current_user": current_user},
+        {"current_user": current_user},
     )

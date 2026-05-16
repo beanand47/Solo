@@ -65,9 +65,9 @@ def team_page(
     )
     stats = {member.id: _member_stats(db, member) for member in members}
     return templates.TemplateResponse(
+        request,
         "team.html",
         {
-            "request": request,
             "title": "Team - Solo",
             "members": members,
             "stats": stats,
@@ -112,9 +112,9 @@ def invite_member(
         db.refresh(member)
 
     response = templates.TemplateResponse(
+        request,
         "team/partials/member_card.html",
         {
-            "request": request,
             "member": member,
             "stat": _member_stats(db, member),
             "current_user": current_user,
@@ -181,8 +181,9 @@ def regenerate_brief(
     db.commit()
     db.refresh(member)
     response = templates.TemplateResponse(
+        request,
         "team/partials/brief.html",
-        {"request": request, "member": member, "current_user": current_user},
+        {"member": member, "current_user": current_user},
     )
     response.headers["HX-Trigger"] = "brief-regenerated"
     return response

@@ -157,9 +157,9 @@ async def shutdown_event():
 @app.exception_handler(RateLimitExceeded)
 async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
     return templates.TemplateResponse(
+        request,
         "login.html",
         {
-            "request": request,
             "error": "Too many attempts. Please wait a minute.",
             "success": None,
         },
@@ -217,9 +217,9 @@ def dashboard(
         greeting = "Good evening."
 
     return templates.TemplateResponse(
+        request,
         "dashboard.html",
         {
-            "request": request,
             "title": "Dashboard - Solo",
             "greeting": greeting,
             "summary": summary,

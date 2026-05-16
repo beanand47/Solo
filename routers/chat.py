@@ -97,9 +97,9 @@ def chat_page(
 ):
     messages = _last_messages(db, current_user.id, 40)
     return templates.TemplateResponse(
+        request,
         "chat.html",
         {
-            "request": request,
             "title": "Chat - Solo",
             "messages": messages,
             "tasks": _open_tasks(db, current_user.id),
