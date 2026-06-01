@@ -13,15 +13,15 @@ load_dotenv(BASE_DIR / ".env")
 
 config = context.config
 
-database_url = os.getenv("DATABASE_URL", "sqlite:///./solo_dev.db")
+from database import Base, normalize_database_url  # noqa: E402
+import models  # noqa: F401,E402
+
+
+database_url = normalize_database_url(os.getenv("DATABASE_URL", "sqlite:///./solo_dev.db"))
 config.set_main_option("sqlalchemy.url", database_url)
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
-
-from database import Base  # noqa: E402
-import models  # noqa: F401,E402
-
 
 target_metadata = Base.metadata
 
