@@ -8,7 +8,13 @@ from sqlalchemy.pool import NullPool
 
 load_dotenv()
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./solo_dev.db")
+def normalize_database_url(database_url: str) -> str:
+    if database_url.startswith("postgres://"):
+        return database_url.replace("postgres://", "postgresql://", 1)
+    return database_url
+
+
+DATABASE_URL = normalize_database_url(os.getenv("DATABASE_URL", "sqlite:///./solo_dev.db"))
 IS_SQLITE = DATABASE_URL.startswith("sqlite")
 
 if IS_SQLITE:
