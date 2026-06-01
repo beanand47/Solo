@@ -9,9 +9,18 @@ def test_allowed_hosts_includes_render_hostname(monkeypatch):
     assert get_allowed_hosts() == ["example.com", "solo-e9op.onrender.com"]
 
 
+def test_allowed_hosts_includes_railway_public_domain(monkeypatch):
+    monkeypatch.setenv("ALLOWED_HOSTS", "example.com")
+    monkeypatch.delenv("RENDER_EXTERNAL_HOSTNAME", raising=False)
+    monkeypatch.setenv("RAILWAY_PUBLIC_DOMAIN", "solo-production.up.railway.app")
+
+    assert get_allowed_hosts() == ["example.com", "solo-production.up.railway.app"]
+
+
 def test_allowed_hosts_strips_empty_values(monkeypatch):
     monkeypatch.setenv("ALLOWED_HOSTS", " example.com, ,www.example.com ")
     monkeypatch.delenv("RENDER_EXTERNAL_HOSTNAME", raising=False)
+    monkeypatch.delenv("RAILWAY_PUBLIC_DOMAIN", raising=False)
 
     assert get_allowed_hosts() == ["example.com", "www.example.com"]
 
