@@ -59,7 +59,7 @@ pip install -r requirements.txt
 4. Create a `.env` file with:
 
 ```env
-OPENAI_API_KEY=sk-your-openai-key
+OPENAI_API_KEY=replace-with-openai-api-key
 SECRET_KEY=your-secret-key
 ENV=development  # or APP_ENV=development
 DATABASE_URL=sqlite:///./solo_ai.db
@@ -75,23 +75,18 @@ uvicorn main:app --reload
 
 ## Deployment
 
-This project is ready for deployment on platforms like **Render** or **Railway**.
+This project is ready for Railway using the included Dockerfile. The container runs migrations and then starts Uvicorn on Railway's `PORT`.
 
-Recommended start command:
+Required Railway web service variables:
 
-```bash
-uvicorn main:app --host 0.0.0.0 --port $PORT
-```
-
-Required environment variables:
-
-- `OPENAI_API_KEY`
+- `ENV=production`
 - `SECRET_KEY`
-- `ENV=production` (or `APP_ENV=production`)
+- `DATABASE_URL=${{Postgres.DATABASE_URL}}`
+- `REDIS_URL=${{Redis.REDIS_URL}}`
+- `OPENAI_API_KEY`
+- `ALLOWED_HOSTS=*` for first deploy
 
-Optional but recommended for production:
-
-- `DATABASE_URL` for a managed database (PostgreSQL recommended)
+Use Railway's private service URLs for Postgres and Redis, not the public URLs. See `DEPLOYMENT.md` for the full fresh deployment checklist.
 
 ## Notes
 
