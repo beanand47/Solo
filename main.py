@@ -65,9 +65,6 @@ def get_allowed_hosts() -> list[str]:
     render_hostname = os.getenv("RENDER_EXTERNAL_HOSTNAME", "").strip()
     if render_hostname and render_hostname not in allowed_hosts:
         allowed_hosts.append(render_hostname)
-    railway_hostname = os.getenv("RAILWAY_PUBLIC_DOMAIN", "").strip()
-    if railway_hostname and railway_hostname not in allowed_hosts:
-        allowed_hosts.append(railway_hostname)
     return allowed_hosts or ["*"]
 
 
